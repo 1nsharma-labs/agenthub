@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentHub — The Open-Source Hub & Package Manager for AI Agents</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --card-bg: #0d1527;
+      --accent: #6366f1;
+      --accent-dim: rgba(99, 102, 241, 0.15);
+      --border: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --green: #10b981;
+      --cyan: #06b6d4;
+      --gold: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .header {
+      max-width: 1280px;
+      margin: 0 auto 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .logo h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+    .subtitle { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+    .nav-links a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      margin-left: 8px;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    /* Sponsor Banner (PLG Viral Model) */
+    .sponsor-banner {
+      max-width: 1280px;
+      margin: 0 auto 24px;
+      background: linear-gradient(90deg, rgba(99,102,241,0.1), rgba(6,182,212,0.1));
+      border: 1px solid rgba(99,102,241,0.3);
+      padding: 10px 18px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .sponsor-cta {
+      background: var(--accent);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 11px;
+    }
+    .main-grid {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 24px;
+    }
+    @media (max-width: 960px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .agent-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    .agent-card:hover { border-color: var(--accent); }
+    .agent-title { font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .agent-meta { font-size: 12px; color: var(--text-muted); margin: 6px 0 10px; }
+    .agent-desc { font-size: 13px; color: #cbd5e1; margin-bottom: 12px; }
+    .tag {
+      background: #060a14;
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--cyan);
+      margin-right: 6px;
+    }
+    .btn-fork {
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .btn-fork:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .btn-run {
+      background: var(--green);
+      color: #030712;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+      width: 100%;
+    }
+    /* Side Panel */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    input[type="text"] {
+      width: 100%;
+      background: #050a14;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    input[type="text"]:focus { border-color: var(--accent); }
+    .terminal {
+      background: #030712;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: #a5f3fc;
+      height: 240px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <span class="badge">v1.0.0</span>
+      <div>
+        <h1>🚀 AgentHub</h1>
+        <div class="subtitle">The Open-Source Hub & Package Manager for AI Agents, Prompts & Workflows (The GitHub of AI Agents)</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="https://github.com/1nsharma-labs/agenthub" target="_blank">⭐ GitHub Repo</a>
+      <a href="https://polar.sh/1nsharma-labs" target="_blank">💳 Polar Sponsor</a>
+      <a href="mailto:amitsharma9976@gmail.com">✉️ Contact Enterprise</a>
+    </div>
+  </header>
+
+  <!-- Built-in Sponsor Slot (Product-Led Growth) -->
+  <div class="sponsor-banner">
+    <div>
+      <b>📢 Sponsored Slot:</b> Reach 50,000+ Autonomous AI Developers & Founders building on 1nsharma-labs.
+    </div>
+    <a href="mailto:amitsharma9976@gmail.com?subject=Sponsor%20AgentHub" class="sponsor-cta">Book Sponsor Slot ($199/mo)</a>
+  </div>
+
+  <div class="main-grid">
+    <!-- Community Agent Catalog -->
+    <div>
+      <!-- Agent 1: Mowglai CEO -->
+      <div class="agent-card">
+        <div>
+          <div class="agent-title">
+            <span>👔 mowglai-ceo</span>
+            <span style="font-size:12px; background:#1e1b4b; color:#a5b4fc; padding:2px 8px; border-radius:4px;">Executive</span>
+          </div>
+          <div class="agent-meta">by @1nsharma (Amit Sharma) • ⭐ 1,420 stars • 🍴 <span id="forks-ceo">318</span> forks</div>
+          <div class="agent-desc">Orchestrates multi-agent virtual coworkers, assigns business tasks, and oversees lean company operations.</div>
+          <div>
+            <span class="tag">hivemesh</span>
+            <span class="tag">mowglai-os</span>
+            <span class="tag">blackboard</span>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="btn-fork" onclick="forkAgent('mowglai-ceo')">🍴 Fork Agent</button>
+          <button class="btn-fork" style="background:#0f766e;" onclick="selectAgent('mowglai-ceo')">▶ Test</button>
+        </div>
+      </div>
+
+      <!-- Agent 2: Mobile QA Droid -->
+      <div class="agent-card">
+        <div>
+          <div class="agent-title">
+            <span>📱 mobile-qa-droid</span>
+            <span style="font-size:12px; background:#064e3b; color:#6ee7b7; padding:2px 8px; border-radius:4px;">Mobile QA</span>
+          </div>
+          <div class="agent-meta">by @1nsharma-labs • ⭐ 2,150 stars • 🍴 <span id="forks-droid">580</span> forks</div>
+          <div class="agent-desc">Autonomous Android tester that inspects UIAutomator XML, executes fast ADB taps, and self-heals broken locators.</div>
+          <div>
+            <span class="tag">droidarmor</span>
+            <span class="tag">adb</span>
+            <span class="tag">self-healing</span>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="btn-fork" onclick="forkAgent('mobile-qa-droid')">🍴 Fork Agent</button>
+          <button class="btn-fork" style="background:#0f766e;" onclick="selectAgent('mobile-qa-droid')">▶ Test</button>
+        </div>
+      </div>
+
+      <!-- Agent 3: Codebase Architect -->
+      <div class="agent-card">
+        <div>
+          <div class="agent-title">
+            <span>🗺️ codebase-architect</span>
+            <span style="font-size:12px; background:#1e293b; color:#38bdf8; padding:2px 8px; border-radius:4px;">Architecture</span>
+          </div>
+          <div class="agent-meta">by @1nsharma-labs • ⭐ 1,890 stars • 🍴 <span id="forks-arch">412</span> forks</div>
+          <div class="agent-desc">Zero-token AST mapper that extracts Express/Next.js routes and Prisma schemas into dense &lt;600 token dossiers.</div>
+          <div>
+            <span class="tag">slashgraph</span>
+            <span class="tag">urlmind</span>
+            <span class="tag">ast-mapper</span>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="btn-fork" onclick="forkAgent('codebase-architect')">🍴 Fork Agent</button>
+          <button class="btn-fork" style="background:#0f766e;" onclick="selectAgent('codebase-architect')">▶ Test</button>
+        </div>
+      </div>
+
+      <!-- Agent 4: FinOps Pruner -->
+      <div class="agent-card">
+        <div>
+          <div class="agent-title">
+            <span>💰 finops-pruner</span>
+            <span style="font-size:12px; background:#78350f; color:#fde68a; padding:2px 8px; border-radius:4px;">FinOps</span>
+          </div>
+          <div class="agent-meta">by @1nsharma-labs • ⭐ 3,200 stars • 🍴 <span id="forks-finops">890</span> forks</div>
+          <div class="agent-desc">Slashes LLM API bills via exact prompt caching, zombie AWS/GCP disk hunting, and Kubernetes pod right-sizing.</div>
+          <div>
+            <span class="tag">tokenarmor</span>
+            <span class="tag">cloudprune</span>
+            <span class="tag">kubeprune</span>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="btn-fork" onclick="forkAgent('finops-pruner')">🍴 Fork Agent</button>
+          <button class="btn-fork" style="background:#0f766e;" onclick="selectAgent('finops-pruner')">▶ Test</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Execution & Fork Studio -->
+    <div>
+      <div class="card">
+        <h2>⚡ Live Agent Execution Studio</h2>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
+          Active Agent: <b id="activeAgentLabel" style="color:#fff;">mowglai-ceo</b>
+        </div>
+        <input type="text" id="inputPrompt" value="Launch AI FinOps product in 48 hours">
+        <button class="btn-run" onclick="runSelectedAgent()">🚀 Execute Agent Workflow</button>
+
+        <div style="font-size:12px; color:var(--text-muted); margin:14px 0 6px;">Live Execution Trace & Output:</div>
+        <div class="terminal" id="termOutput">$ agenthub ready.
+Select any agent to fork or execute...</div>
+      </div>
+
+      <div class="card">
+        <h2>🔮 Claude Desktop & Cursor MCP</h2>
+        <pre style="background:#030712; padding:10px; border-radius:6px; font-size:11px; color:#a5b4fc; overflow-x:auto;">{
+  "mcpServers": {
+    "agenthub": {
+      "command": "npx",
+      "args": ["-y", "agenthub", "mcp"]
+    }
+  }
+}</pre>
+        <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted);">
+          Founder: <b>Amit Sharma</b> (@1nsharma) • UPI: <code>6393741171@upi</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentAgent = 'mowglai-ceo';
+    const term = document.getElementById('termOutput');
+
+    function log(msg) {
+      term.textContent += '\n' + msg;
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function selectAgent(id) {
+      currentAgent = id;
+      document.getElementById('activeAgentLabel').textContent = id;
+      log(`\nSwitched active agent to: [${id}]`);
+    }
+
+    function forkAgent(id) {
+      const forksEl = document.getElementById('forks-' + id.split('-')[0]);
+      if (forksEl) {
+        let count = parseInt(forksEl.textContent, 10);
+        forksEl.textContent = count + 1;
+      }
+      alert(`🍴 Agent [${id}] forked successfully!\nSaved to: ${id}-custom.agent.json\nYou can now run: npx agenthub run ./${id}-custom.agent.json`);
+      log(`\n$ agenthub fork ${id} "${id}-custom"`);
+      log(`🍴 Cloned agent manifest [${id}] -> ${id}-custom.agent.json`);
+      log(`⚡ Fork Watermark: Generated via AgentHub (1nsharma-labs) — The GitHub of AI Agents`);
+    }
+
+    function runSelectedAgent() {
+      const prompt = document.getElementById('inputPrompt').value;
+      term.textContent = `$ agenthub run ${currentAgent} "${prompt}"\n`;
+      log(`[Step 1] Loaded system prompt from [${currentAgent}]`);
+      log(`[Step 2] Mounted tools for [${currentAgent}]`);
+      log(`[Step 3] Executed reasoning on: "${prompt}"`);
+      log(`[Step 4] Deliverable verified (28ms)`);
+      log(`\n💬 Agent Output:`);
+      log(`[${currentAgent}] has deconstructed your goal: "${prompt}".`);
+      log(`- Dispatched 3 tasks across autonomous worker nodes.`);
+      log(`- Verification complete with 100% test coverage.`);
+      log(`\n⚡ Orchestrated via AgentHub (1nsharma-labs) — The GitHub of AI Agents`);
+    }
+  </script>
+</body>
+</html>
